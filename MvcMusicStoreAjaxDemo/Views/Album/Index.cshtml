@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "Albums (Ajax)";
+    Layout = "_Layout";
+}
+<h2>Albums (Ajax)</h2>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label class="form-label">Title</label>
+        <input id="Title" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Artist</label>
+        <input id="Artist" class="form-control" />
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button id="btnSave" class="btn btn-primary w-100">Save</button>
+    </div>
+</div>
+
+<table id="tblAlbums" class="table table-bordered table-striped">
+    <thead><tr><th>ID</th><th>Title</th><th>Artist</th></tr></thead>
+    <tbody></tbody>
+</table>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(function () {
+          loadData();
+
+          $("#btnSave").on("click", function () {
+            var album = { title: $("#Title").val(), artist: $("#Artist").val() };
+            $.ajax({
+              type: "POST",
+              url: "@Url.Action("CreateAlbum", "Album")",
+              data: JSON.stringify(album),
+              contentType: "application/json; charset=utf-8",
+              success: function () { $("#Title").val(""); $("#Artist").val(""); loadData(); },
+              error: function () { alert("Error while inserting data"); }
+            });
+          });
+        });
+
+        function loadData() {
+          $("#tblAlbums tbody").empty();
+          $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetAlbums", "Album")",
+            success: function (data) {
+              $.each(data, function (i, item) {
+                $("#tblAlbums tbody").append(
+                  "<tr><td>" + item.albumId + "</td><td>" +
+                  item.title + "</td><td>" + item.artist + "</td></tr>");
+              });
+            },
+            error: function () { alert("Error loading data"); }
+          });
+        }
+    </script>
+}
